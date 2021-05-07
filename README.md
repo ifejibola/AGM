@@ -9,6 +9,6 @@ npm install
 
 # Starting/Running App:
 
-nodemon
+npm run dev
 
 Ife Ajibola – ife.jibola@gmail.com
