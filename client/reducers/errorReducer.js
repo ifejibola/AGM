@@ -11,11 +11,18 @@ const initialState = {
 export default (state = initialState, action) => {
     switch (action.type) {
         case GET_ERRORS:
-            return {
-                msg: action.payload.msg,
-                status: action.payload.status,
-                id: action.payload.id
+            {
+                console.log('get err: ', action.payload.msg)
+                return {
+                    msg: action.payload.msg,
+                    status: action.payload.status,
+                    id: action.payload.id
+                }
             };
+        // return {
+        //     ...state,
+        //     ...action.payload,
+        // };
         case CLEAR_ERRORS:
             return {
                 msg: {},

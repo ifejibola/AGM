@@ -12,29 +12,72 @@ Moderator.prototype.setPassword = function (password, mod) {
 // Moderator.beforeUpdate(setPassword)
 
 
+// const create = async (req, res, next) => {
+
+//     // Moderator.User = User.belongsTo(Moderator, { as: 'user' });
+//     // User.belongsTo(Moderator, { as: 'user' });
+//     // Moderator.User = Moderator.hasMany(User, { as: 'user' }); // add moderatorid to User table, assessors getMod, set Mod
+
+//     const mod = await Moderator.create(req.body, {
+//         // include: [{ model: User, as: 'user' }],
+//         freezeTableName: true
+//     })
+
+//     const hashedPassword = await bcrypt.hash(req.body.password, 10)
+//     mod.password = hashedPassword
+//     console.log('hash: ' + mod.password)
+//     // save user to db
+//     mod.save().then(function () {
+//         //    return res.redirect('/').status(200).json({ mod: mod });
+//         // return res.status(200).json({ mod: mod });
+//         console.log(mod)
+//         return res.redirect('/');
+//     }).catch(next)
+//     // res.redirect('/')
+// }
+function apiAuthErrorResult(res, msg = 'Error') {
+    res.status(302);
+    res.json({
+        msg
+    });
+}
 const create = async (req, res, next) => {
 
     // Moderator.User = User.belongsTo(Moderator, { as: 'user' });
     // User.belongsTo(Moderator, { as: 'user' });
     // Moderator.User = Moderator.hasMany(User, { as: 'user' }); // add moderatorid to User table, assessors getMod, set Mod
 
-    const mod = await Moderator.create(req.body, {
-        // include: [{ model: User, as: 'user' }],
-        freezeTableName: true
-    })
+    if (!req.body)
+        return apiAuthErrorResult(res, 'Malformed request.');
+    else {
+        if (!req.body.email || !req.body.password || !req.body.name)
+            return apiAuthErrorResult(res, 'Malformed request.');
+    }
 
+    // check if this user has been created
+    const foundUser = await Moderator.findOne({ where: { email: req.body.email } });
 
-    const hashedPassword = await bcrypt.hash(req.body.password, 10)
-    mod.password = hashedPassword
-    console.log('hash: ' + mod.password)
+    if (foundUser !== null)
+        return apiAuthErrorResult(res, `A moderator with that email (${req.body.email}) already exists`);
+
     // save user to db
-    mod.save().then(function () {
-        //    return res.redirect('/').status(200).json({ mod: mod });
-        // return res.status(200).json({ mod: mod });
-        console.log(mod)
-        return res.redirect('/');
-    }).catch(next)
-    // res.redirect('/')
+    try {
+        const mod = await Moderator.create(req.body, {
+            // include: [{ model: User, as: 'user' }],
+            freezeTableName: true
+        })
+
+        const hashedPassword = await bcrypt.hash(req.body.password, 10)
+        mod.password = hashedPassword
+        console.log('hash: ' + mod.password)
+        await mod.save();
+        console.log(`${mod.name} was added to the db`);
+        return res.status(200).json({
+            message: "Successfully signed up!!"
+        })
+    } catch (err) {
+        return res.status(400).json({ msg: err.message });
+    }
 }
 
 const read = async (req, res,) => {
