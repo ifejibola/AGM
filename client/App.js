@@ -2,6 +2,7 @@ import React from 'react'
 import { renderRoutes } from 'react-router-config'
 import Menu from './core/Menu'
 import MenuT from './core/MenuT'
+import Menu2 from './core/Menu2'
 // import { fetch_current_user } from './actions'
 import { fetch_current_user, loadStatus } from './actions'
 // import { hot } from 'react-hot-loader'
@@ -9,18 +10,13 @@ import { fetch_current_user, loadStatus } from './actions'
 
 const App = ({ route }) => {
 
-
     return <div>
+        {/* <Menu2 /> */}
         <Menu />
         {/* <MenuT /> */}
         {renderRoutes(route.routes)}
-
     </div>
 }
-
-// function loadData() {
-//     return ({ dispatch }) => dispatch(fetch_current_user());
-// }
 
 export default {
     component: App,

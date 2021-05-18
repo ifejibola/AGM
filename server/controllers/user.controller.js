@@ -1,33 +1,27 @@
 // import User from '../models/User.model'
-import { User } from '../../models/user'
+import { User } from '../../models/'
 import { Moderator } from '../../models/moderator'
 import db from '../../models';
 import sequelize from 'sequelize'
-import extend from 'lodash/extend'
-import request from 'request'
-
 
 const create = async (req, res) => {
 
 
     // console.log(user.toJSON());
-    const us = { email: req.body.email, password: req.body.password, name: req.body.name, is_admin: req.body.is_admin }
-    // Validate request
-    // if (!req.body.title) {
-    //     res.status(400).send({
-    //         message: "Content can not be empty!"
-    //     });
-    //     return;
-    // }
-    // user.create(us).then(data => {
-    //     res.send(data);
-    // })        
+    const us = { email: req.body.email, password: req.body.password, name: req.body.name }
 
-    const user = await db.User.create(req.body, {
-        include: [
-            db.Moderator,
-        ]
+    const usr = req.body;
+    console.log('usr: ', usr)
+
+    console.log('req.user.id: ', req.user.id)
+    const id = req.user.id
+    const user = await User.create({
+        email: usr.email,
+        password: usr.password,
+        moderatorId: id
     })
+
+    // console.log('modUser: ', user)
 
     // save user to db
     try {

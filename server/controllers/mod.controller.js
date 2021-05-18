@@ -45,7 +45,9 @@ const create = async (req, res, next) => {
 
     // Moderator.User = User.belongsTo(Moderator, { as: 'user' });
     // User.belongsTo(Moderator, { as: 'user' });
-    // Moderator.User = Moderator.hasMany(User, { as: 'user' }); // add moderatorid to User table, assessors getMod, set Mod
+    Moderator.User = Moderator.hasMany(User, { as: 'user' }); // add moderatorid to User table, assessors getMod, set Mod
+
+    // Moderator = Moderator.hasMany(User); // add moderatorid to User table, assessors getMod, set Mod
 
     if (!req.body)
         return apiAuthErrorResult(res, 'Malformed request.');
@@ -63,7 +65,7 @@ const create = async (req, res, next) => {
     // save user to db
     try {
         const mod = await Moderator.create(req.body, {
-            // include: [{ model: User, as: 'user' }],
+            include: [{ model: User, as: 'user' }],
             freezeTableName: true
         })
 
@@ -80,25 +82,25 @@ const create = async (req, res, next) => {
     }
 }
 
+export function role(role) {
+    return (req, res, next) => {
+        if (req.user.role !== role) {
+            res.status(401)
+            return res.send('Not allowed. admin only!');
+        }
+        next();
+    }
+}
 const read = async (req, res,) => {
 
-    if (req.user) {
-        return res.send(req.user);
+    if (req.isAuthenticated()) {
+        return req.isAuthenticated();
     } else {
-        console.log('theres nothing to read in current_user: ', req.user)
-        return res.send(req.user)
+        return res.json({ msg: "false" })
+        // return res.status(404).json({ status: false });
     }
-    // res.send(req.user)
 }
 const currentUser = async (req, res) => {
-    // console.log("current user: req.user: ", req.user)
-    // if (req.user) {
-    //     console.log(`You are reading ${JSON.stringify(req.user.name)}`);
-    //     return res.send(req.user)
-    // } else {
-    //     console.log('theres nothing to read in current_user: ', req.user)
-    //     return res.send(req.user)
-    // }
 
     const isAuthenticated = !!req.user;
     if (isAuthenticated) {
@@ -109,9 +111,6 @@ const currentUser = async (req, res) => {
     res.send(isAuthenticated ? true : false);
 }
 
-const auth = async (req, res) => {
-
-}
 const profile = async (req, res, next) => {
     if (req.payload) {
         await Moderator.findOne({
@@ -145,6 +144,7 @@ export default {
     create,
     list,
     read,
+    role,
     profile,
     currentUser
 }

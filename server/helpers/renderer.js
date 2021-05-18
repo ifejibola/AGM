@@ -21,6 +21,7 @@ export default (req, store, context) => {
   return `
     <html>
       <head>
+      ${helmet.title.toString()}
       ${helmet.meta.toString()}
 
         <title>AGMEETING</title>

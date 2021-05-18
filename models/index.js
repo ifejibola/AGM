@@ -1,29 +1,42 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
 const Sequelize = require('sequelize');
-const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || 'development';
-const config = require(__dirname + '/../config/config.json')[env];
-const db = {};
+// const configJsonData = require('../../config/config.json');
+const configJsonData = require(__dirname + '/../config/config.json');
+const env = 'development';
 
-let sequelize;
-if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable], config);
-} else {
-  sequelize = new Sequelize(config.database, config.username, config.password, config);
-}
+console.log(`[sequelize] loading config file for (${env})`);
 
-fs
-  .readdirSync(__dirname)
-  .filter(file => {
-    return (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js');
-  })
-  .forEach(file => {
-    const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
-    db[model.name] = model;
-  });
+// select the appropriate one
+const config = configJsonData[env];
+
+console.log(config);
+
+const sequelize = (config.use_env_variable) ?
+  new Sequelize(process.env[config.use_env_variable], config) :
+  new Sequelize(config.database, config.username, config.password, config);
+
+
+const db = {
+  sequelize,
+  Sequelize: sequelize,
+};
+
+console.log(`[sequelize] loading model definitions file(s)`);
+
+// NOTE: previous loader caused serious issues when webpacked
+
+const modelDefinitions = {
+  Moderator: 'moderator',
+  User: 'user'
+};
+
+Object.entries(modelDefinitions).forEach(([modelName, fileName]) => {
+  console.log(`[sequelize] loading model (${modelName})`);
+  //const model = require(`./${name}`)(sequelize, Sequelize.DataTypes);
+  db[modelName] = require(`./${fileName}`)(sequelize, Sequelize);
+});
+
 
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
@@ -31,17 +44,11 @@ Object.keys(db).forEach(modelName => {
   }
 });
 
-// global.sequelize = sequelize;
 
-db.sequelize = sequelize;
-db.Sequelize = Sequelize;
+// db.Moderator.hasMany(db.User);
+// db.User.belongsTo(db.Moderator);
 
-db.User = require("./user")(sequelize, Sequelize);
-db.Moderator = require("./moderator")(sequelize, Sequelize);
 
-db.Moderator.hasMany(db.User)
-db.User.belongsTo(db.Moderator)
-// db.Moderator.User = db.Moderator.hasMany(db.User)
-// db.User.Moderator = db.User.belongsTo(db.Moderator)
+console.log(`[sequelize] created [db] object for export (${Object.keys(db)}).`);
 
 module.exports = db;

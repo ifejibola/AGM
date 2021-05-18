@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
   };
   Moderator.init({
     // Model Attributes 
-    email: { type: Sequelize.STRING, allowNull: false },
+    email: { type: Sequelize.STRING, allowNull: false, unique: true },
     password: { type: Sequelize.STRING, allowNull: false, },
     company: { type: Sequelize.STRING, allowNull: true },
     name: { type: Sequelize.STRING, allowNull: true },

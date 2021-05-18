@@ -31,6 +31,8 @@ const Menu = ({ auth }) => {
       <Navbar.Brand href="/">AGMEETING</Navbar.Brand>
       <Nav className="mr-auto">
         <Nav.Link href="/users">Users</Nav.Link>
+        <Nav.Link href="/price">Price</Nav.Link>
+
         {authButton2}
       </Nav>
 

@@ -25,6 +25,9 @@ import AddAdminNotes from './AddAdminNotes'
 import ReadyToVoteStat from './ReadytoVoteStat'
 import SelectVotingMode from './SelectVotingMode'
 import IntroApprovalOfCharVoting from './IntroAprrovalChair'
+
+
+import Dashboard from '../Components/Dashboard/Dashboard'
 const Home = () => {
 
     const [modalShow, setModalShow] = useState(false);
@@ -59,8 +62,8 @@ const Home = () => {
 
     return (
         <div>
-            <br>
-            </br>
+            {/* <br>
+            </br> */}
 
             <Button variant="primary" onClick={() => setModalShow(true)}>
                 Interactions
@@ -359,6 +362,7 @@ const Home = () => {
 
                 </TabPane>
             </TabContent>
+
         </div>
     );
 }

@@ -12,13 +12,13 @@ import { HOME_PAGE_LOADED, HOME_PAGE_UNLOADED } from '../constants/actionTypes'
     It is good practice to encapsulate as much of your application logic as possible in reducers.
 */
 
-const defaultState = {
-    appName: 'AGMEETING',
-    token: null,
-    viewChangeCounter: 0
+const initialState = {
+    isAuthenticated: null,
+    isLoading: false,
+    user: null
 }
 
-export default (state = null, action) => {
+export default (state = initialState, action) => {
     switch (action.type) {
         case HOME_PAGE_LOADED:
             return {

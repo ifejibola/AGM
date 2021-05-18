@@ -85,23 +85,27 @@ server.use(cors())
 //Encrypt cookie, and set it to a day long
 server.use(express.urlencoded({ extended: false }))
 server.use(flash())
-server.use(session({ secret: 'agmeeting', resave: true, saveUninitialized: true }))
+server.use(session({ secret: 'agmeeting', resave: false, saveUninitialized: false }))
 //initialize passport
 server.use(passport.initialize());
 server.use(passport.session())
 
 server.use((req, res, next) => {
-    // console.log(" ")
-    // console.log('session: ', req.session)
-    // console.log(" ")
-    // console.log('cookie: ', req.cookies)
-    // console.log(" ")
-    if (req.user)
-        console.log("CURRENT_USER: ", JSON.stringify(req.user.name));
-    else
-        console.log("CURRENT-USER: ", JSON.stringify(req.user));
+    console.log(" ")
+    console.log('session: ', req.session)
+    console.log(" ")
+    console.log('cookie: ', req.cookies)
+    console.log(" ")
 
-    // console.log(" script.js .use profile: " + req.profile);
+    if (req.isAuthenticated()) {
+        console.log("req.user: ", req.user);
+        console.log('req.isAuth: ', req.isAuthenticated())
+        console.log("CURRENT_USER.name: ", JSON.stringify(req.user.name));
+    }
+    else {
+        console.log('req.isAuth false: ', req.isAuthenticated())
+        console.log("CURRENT-USER: ", JSON.stringify(req.user));
+    }
     next();
 })
 //make folder public/availble 
@@ -118,24 +122,40 @@ server.get('*', (req, res, next) => {
     //Redux
     const store = createStore(req);
 
-    // console.log(matchRoutes(MainRouter, req.path)); // shows array object of routes without initializing loadData function
-
     // Call dataLoad function within the routes // using destructuring route object 
     // will return an array of promises, representing all the pending network request from all the action creators
-    const promises = matchRoutes(MainRouter, req.path).map(({ route }) => {
-        //check if component route has loadData attached to it in mainRouter
-        return route.loadData ? route.loadData(store) : Promise.resolve(null);
+
+    // console.log('promises[matchRoutes]: ', promises)
+
+    const promises = matchRoutes(MainRouter, req.path)
+        .map(({ route }) => {
+            return route.loadData ? route.loadData(store) : null;
+        })
+        .map(promise => {
+            if (promise) {
+                return new Promise((resolve, reject) => {
+                    promise.then(resolve).catch(resolve);
+                });
+            }
+        });
+    // console.log('promises[matchRoutes]: ', promises)
+
+    Promise.all(promises).then(() => {
+        const context = {};
+        const content = renderer(req, store, context);
+
+        // console.log('context: ', context)
+        if (context.url) {
+            return res.redirect(301, context.url);
+        }
+        if (context.notFound) {
+            res.status(404);
+        }
+
+        res.send(content);
     });
+});
 
-    console.log('promises[matchRoutes]: ', promises)
-    const context = {};
-
-    return Promise.all(promises).then(() => {
-
-        res.send(renderer(req, store, context))
-    })
-
-})
 
 server.use((err, req, res, next) => {
     if (err.name === 'UnauthorizedError') {

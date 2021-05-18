@@ -144,6 +144,6 @@ function loadData(store) {
     return store.dispatch(returnErrors());
 }
 export default {
-    loadData,
+    // loadData,
     component: connect(mapStateToProps, { registerUser })(Signup)
 };
